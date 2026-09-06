@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSE Migration Application</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+  <div class="card">
+    <div class="header">
+      <h1 id="title">DSE Migration Application <span id="versionTag" style="font-size: 15px; color: #64748b; font-weight: 500; margin-left: 8px; border-left: 2px solid #cbd5e1; padding-left: 8px;"></span></h1>
+      <p>Complete all required fields accurately. <a href="status.html" style="color:#1a73e8; font-weight:bold; float:right;">Track Status</a></p>
+    </div>
+    
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot-1">1</div><div class="step-line"></div>
+      <div class="step-dot" id="dot-2">2</div><div class="step-line"></div>
+      <div class="step-dot" id="dot-3">3</div>
+    </div>
+
+    <form id="form" novalidate>
+      <div class="form-step active" id="step-1">
+        <section>
+          <h2>Step 1: Personal & Academic Details</h2>
+          <div class="grid">
+            <div class="field"><label>Email <span>*</span></label><input name="email" type="email" required></div>
+            <div class="field"><label>Application No. (DSE...) <span>*</span></label><input name="applicationNo" required></div>
+            <div class="field"><label>Mobile No. <span>*</span></label><input name="mobile" inputmode="numeric" maxlength="10" required></div>
+            <div class="field"><label>Admission Year <span>*</span></label><select name="admissionYear" id="admissionYear" required><option value="">Select Year</option></select></div>
+          </div>
+          <div class="field"><label>Gender <span>*</span></label><div class="options" id="genderOptions"></div><input class="otherInput hidden" id="genderOther" name="genderOther" placeholder="Enter gender" disabled></div>
+          <div class="field"><label>Branch <span>*</span></label><div class="options" id="branchOptions"></div></div>
+          <div class="grid">
+            <div class="field"><label>Last Name <span>*</span></label><input name="lastName" required></div>
+            <div class="field"><label>First Name <span>*</span></label><input name="firstName" required></div>
+            <div class="field"><label>Father Name <span>*</span></label><input name="fatherName" required></div>
+            <div class="field"><label>Mother Name <span>*</span></label><input name="motherName" required></div>
+          </div>
+        </section>
+        <div class="actions step-actions"><button type="button" class="action-btn" onclick="nextStep(1)">Next Step ➔</button></div>
+      </div>
+
+      <div class="form-step hidden" id="step-2">
+        <section>
+          <h2>Step 2: Diploma College & Migration</h2>
+          <div class="field"><label>Search and select Diploma College <span>*</span></label>
+            <div class="picker"><input id="collegeSearch" autocomplete="off" placeholder="Type college code or name..."><div id="collegeResults" class="results"></div></div>
+            <div id="collegeSelected" class="selected hidden"></div><input type="hidden" name="collegeCode" id="collegeCode"><input type="hidden" name="collegeName" id="collegeName">
+            <button type="button" id="manualBtn" class="linkBtn">College not in list? Enter manually</button><input name="enteredCollegeName" id="enteredCollegeName" class="hidden" placeholder="Enter Diploma College Name" disabled>
+          </div>
+          <div class="field"><label>Diploma College Status <span>*</span></label><div class="options" id="collegeStatusOptions"></div><input class="otherInput hidden" id="collegeStatusOther" name="collegeStatusOther" disabled></div>
+          <div class="field"><label>Migration / NOC Status <span>*</span></label><div class="options" id="migrationOptions"></div><input class="otherInput hidden" id="migrationOther" name="migrationOther" disabled></div>
+          
+          <div id="appliedBlock" class="conditional hidden">
+            <h3>If Applied, provide details</h3>
+            <div class="field"><label>Aaple Sarkar Username <span>*</span></label><div class="options" id="usernameModeOptions"></div><input name="aapleUsername" id="aapleUsername" class="hidden" disabled></div>
+            <div class="field"><label>Password <span>*</span></label><input name="password" id="password" type="password" disabled></div>
+          </div>
+          <div id="districtBlock" class="field"><label>District <span>*</span></label><select name="district" id="district" required><option value="">Select District</option></select></div>
+        </section>
+        <div class="actions step-actions" style="display:flex; gap:15px;">
+          <button type="button" class="cancel-btn" onclick="prevStep(2)">⬅ Previous</button>
+          <button type="button" class="action-btn" onclick="nextStep(2)">Next Step ➔</button>
+        </div>
+      </div>
+
+      <div class="form-step hidden" id="step-3">
+        <section>
+          <h2>Step 3: Documents & Submit</h2>
+          <div class="field"><label>Upload Migration Document</label><input type="file" id="migrationFile" accept="application/pdf, image/jpeg, image/png"><small style="color: #6b7280; display:block; margin-top:5px;">Max size: 5MB (Optional)</small></div>
+          <div class="field"><label>Remark</label><textarea name="remark" rows="5"></textarea></div>
+        </section>
+        <div class="actions step-actions" style="display:flex; gap:15px;">
+          <button type="button" class="cancel-btn" onclick="prevStep(3)">⬅ Previous</button>
+          <button type="submit" class="action-btn" id="submitBtn">Submit Application ✔</button>
+        </div>
+      </div>
+      <div id="message" class="message hidden" style="margin: 0 32px 24px 32px;"></div>
+    </form>
+  </div>
+</div>
+<div id="loading" class="loading">Loading...</div>
+
+<script src="api.js"></script>
+<script>
+let DATA = {};
+const form = document.getElementById('form');
+const loading = document.getElementById('loading');
+const message = document.getElementById('message');
+
+function showMessage(text, type) { message.textContent = text; message.className = 'message ' + type; message.classList.remove('hidden'); }
+
+// Validation & Stepper logic
+function validateStep(stepNum) {
+  const stepDiv = document.getElementById(`step-${stepNum}`);
+  if (stepNum === 2) {
+    if (!document.getElementById('collegeCode').value && (!document.getElementById('enteredCollegeName').value || document.getElementById('enteredCollegeName').disabled)) {
+      showMessage("Please select a College.", "error"); return false;
+    } else message.classList.add('hidden');
+  }
+  let isValid = true;
+  stepDiv.querySelectorAll('input:not(:disabled), select:not(:disabled), textarea:not(:disabled)').forEach(i => { if(i.required && !i.value) isValid = false; if(!i.checkValidity()) isValid = false; });
+  const radioGroups = [...new Set([...stepDiv.querySelectorAll('input[type="radio"]:not(:disabled)')].map(r => r.name))];
+  radioGroups.forEach(name => { if (!stepDiv.querySelector(`input[name="${name}"]:checked`)) isValid = false; });
+  if (!isValid) { form.reportValidity(); return false; } return true;
+}
+
+function nextStep(s) { if(validateStep(s)){ document.getElementById(`step-${s}`).classList.add('hidden'); document.getElementById(`step-${s+1}`).classList.remove('hidden'); document.getElementById(`dot-${s+1}`).classList.add('active'); window.scrollTo(0,0); } }
+function prevStep(s) { document.getElementById(`step-${s}`).classList.add('hidden'); document.getElementById(`step-${s-1}`).classList.remove('hidden'); document.getElementById(`dot-${s}`).classList.remove('active'); window.scrollTo(0,0); }
+
+function makeOptions(id, name, items, otherId) {
+  const box = document.getElementById(id); if(!box)return;
+  box.innerHTML = items.map(x => `<label class="option"><input type="radio" name="${name}" value="${esc(x)}" required> <span>${esc(x)}</span></label>`).join('');
+  if (otherId) { box.querySelectorAll('input').forEach(r => r.addEventListener('change', () => { const o = document.getElementById(otherId); if (r.value === 'Other') { o.classList.remove('hidden'); o.disabled=false; o.required=true; } else { o.classList.add('hidden'); o.disabled=true; o.required=false; o.value=''; } })); }
+}
+
+async function loadInit() {
+  try {
+    DATA = await callAPI('getInitialData');
+    document.getElementById('title').innerHTML = `${DATA.title} <span style="font-size: 15px; color: #64748b; font-weight: 500; margin-left: 8px; border-left: 2px solid #cbd5e1; padding-left: 8px;">Version ${DATA.version}</span>`;
+    document.getElementById('admissionYear').innerHTML += DATA.admissionYears.map(y => `<option value="${esc(y)}">${esc(y)}</option>`).join('');
+    document.getElementById('district').innerHTML += DATA.districts.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+    
+    makeOptions('genderOptions', 'gender', ['Male', 'Female', 'Other'], 'genderOther');
+    makeOptions('branchOptions', 'branch', DATA.branches);
+    makeOptions('collegeStatusOptions', 'collegeStatus', ['Autonomous', 'MSBTE Affiliated', 'Other'], 'collegeStatusOther');
+    makeOptions('migrationOptions', 'migrationStatus', ['SUBMITTED', 'SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES', 'APPLIED', 'Login Created', 'Other'], 'migrationOther');
+    makeOptions('usernameModeOptions', 'usernameMode', ['SAME AS MOBILE NO', 'Other']);
+    
+    document.getElementById('appliedBlock').querySelectorAll('input').forEach(i => i.disabled = true);
+    document.querySelectorAll('input[name="migrationStatus"]').forEach(r => r.addEventListener('change', updateMigration));
+    document.querySelectorAll('input[name="usernameMode"]').forEach(r => r.addEventListener('change', updateUsername));
+    document.querySelector('input[name="mobile"]').addEventListener('input', updateUsername);
+    
+    loading.classList.add('hidden');
+  } catch(e) {
+    loading.classList.add('hidden'); showMessage(e.message, 'error');
+  }
+}
+
+function updateMigration() {
+  const v = document.querySelector('input[name="migrationStatus"]:checked')?.value || '';
+  const ab = document.getElementById('appliedBlock'); const db = document.getElementById('districtBlock'); const ds = document.getElementById('district'); const pwd = document.getElementById('password');
+  if (v === 'APPLIED' || v === 'Login Created') { ab.classList.remove('hidden'); ab.querySelectorAll('input').forEach(i => {if(i.id!=='aapleUsername')i.disabled=false;}); pwd.required=true; updateUsername(); } 
+  else { ab.classList.add('hidden'); ab.querySelectorAll('input').forEach(i => {i.disabled=true; i.type==='radio'?i.checked=false:i.value='';}); pwd.required=false; }
+  if (v === 'SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES') { db.classList.add('hidden'); ds.disabled=true; ds.required=false; ds.value=''; } 
+  else { db.classList.remove('hidden'); ds.disabled=false; ds.required=true; }
+}
+
+function updateUsername() {
+  const m = document.querySelector('input[name="usernameMode"]:checked')?.value || ''; const inp = document.getElementById('aapleUsername');
+  if (m === 'Other') { inp.classList.remove('hidden'); inp.disabled=false; inp.required=true; inp.value=''; } 
+  else { inp.classList.add('hidden'); inp.disabled=true; inp.required=false; inp.value = m==='SAME AS MOBILE NO' ? document.querySelector('input[name="mobile"]').value.trim() : ''; }
+}
+
+// Search College setup
+const cs = document.getElementById('collegeSearch'); const cr = document.getElementById('collegeResults');
+function renderResults(q) {
+  const query = q.trim().toLowerCase(); if (!query) { cr.style.display='none'; return; }
+  const found = DATA.colleges.filter(c => (c[0]+' '+c[1]).toLowerCase().includes(query)).slice(0,50);
+  cr.innerHTML = found.length ? found.map(c => `<div class="result" data-code="${esc(c[0])}" data-name="${esc(c[1])}"><strong>${esc(c[0])}</strong> - ${esc(c[1])}</div>`).join('') : '<div class="result">No matching college.</div>';
+  cr.style.display='block'; cr.querySelectorAll('.result[data-code]').forEach(el => el.addEventListener('click', () => selectCollege(el.dataset.code, el.dataset.name)));
+}
+function selectCollege(code, name) {
+  document.getElementById('collegeCode').value=code; document.getElementById('collegeName').value=name;
+  const mInp = document.getElementById('enteredCollegeName'); mInp.value=''; mInp.classList.add('hidden'); mInp.disabled=true; mInp.required=false;
+  document.getElementById('collegeSelected').textContent = code+' - '+name; document.getElementById('collegeSelected').classList.remove('hidden');
+  cs.value=''; cr.style.display='none';
+}
+if(cs){ cs.addEventListener('input', ()=>renderResults(cs.value)); cs.addEventListener('focus', ()=>renderResults(cs.value)); }
+document.addEventListener('click', e => { if (!e.target.closest('.picker') && cr) cr.style.display='none'; });
+document.getElementById('manualBtn')?.addEventListener('click', () => {
+  document.getElementById('collegeCode').value=''; document.getElementById('collegeName').value=''; document.getElementById('collegeSelected').classList.add('hidden');
+  const mInp = document.getElementById('enteredCollegeName'); mInp.classList.remove('hidden'); mInp.disabled=false; mInp.required=true; mInp.focus();
+});
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if(!validateStep(3)) return;
+  message.classList.add('hidden'); loading.classList.remove('hidden');
+  
+  const fd = new FormData(form), data = {}; fd.forEach((v, k) => data[k] = String(v).trim());
+  if (document.querySelector('input[name="migrationStatus"]:checked')?.value === 'SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES') data.district = '';
+  if (data.usernameMode === 'SAME AS MOBILE NO') data.aapleUsername = data.mobile;
+  
+  try {
+    const fileObj = await getFileBase64('migrationFile');
+    const res = await callAPI('submitApplication', { form: data, fileObj: fileObj });
+    loading.classList.add('hidden');
+    showMessage(res.message + ' Application No: ' + res.applicationNo, 'success');
+    form.reset(); document.getElementById('collegeSelected').classList.add('hidden'); document.getElementById('appliedBlock').classList.add('hidden'); document.getElementById('districtBlock').classList.remove('hidden');
+    document.getElementById('step-3').classList.add('hidden'); document.getElementById('step-1').classList.remove('hidden'); document.getElementById('dot-3').classList.remove('active'); document.getElementById('dot-2').classList.remove('active');
+  } catch (error) { loading.classList.add('hidden'); showMessage(error.message, 'error'); }
+});
+
+loadInit();
+</script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page { max-width: 1600px !important; padding: 12px 20px; }
+    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+    .stat-card h3 { margin: 0 0 4px; font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; }
+    .stat-card .val { font-size: 24px; font-weight: 800; color: #1e293b; }
+    .controls-wrapper { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: stretch; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 0; flex: 1 1 auto; }
+    .toolbar-item { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+    .toolbar-item label { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0; }
+    .toolbar-input { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12.5px; min-height: 32px; }
+    .bulk-bar { background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 14px; border-radius: 8px; margin: 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 0 0 auto; }
+    .bulk-bar select, .bulk-bar input { padding: 6px 8px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 12.5px; min-height: 32px; }
+    .row-chk { width: 15px; height: 15px; cursor: pointer; accent-color: #1a73e8; margin: 0; }
+    .table-wrap { overflow-x: auto; max-height: 70vh; border-top: 1px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1100px; font-size: 12.5px; } 
+    th, td { padding: 6px 8px; border-bottom: 1px solid #edf0f2; vertical-align: middle; }
+    th { background: #f8fafc; position: sticky; top: 0; cursor: pointer; user-select: none; font-weight: 700; color: #4b5563; z-index: 10; border-bottom: 2px solid #e5e7eb; font-size: 11.5px;}
+    .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .audit-row { border-bottom: 1px solid #e2e8f0; padding: 10px 0; font-size: 13px; display: grid; grid-template-columns: 140px 110px 110px 1fr; gap: 12px;}
+    .audit-header { font-weight: 700; color: #475569; background: #f1f5f9; padding: 12px 10px; border-radius: 6px 6px 0 0; }
+    .copy-icon-wrapper { cursor: pointer; color: #94a3b8; padding: 2px;} .copy-icon-wrapper:hover { color: #1a73e8; }
+    .fe-section { grid-column: 1 / -1; margin-top: 10px; font-weight: 700; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; font-size: 14px;}
+  </style>
+</head>
+<body>
+<div class="page" id="mainContainer">
+  <div id="adminLoginBox" class="card login-card" style="max-width:400px; margin:10vh auto;">
+    <div class="header"><h2>Admin Login</h2></div>
+    <div style="padding:24px;">
+      <div class="field"><input type="password" id="adminPin" placeholder="Enter PIN"></div>
+      <button class="action-btn" onclick="loginAdmin()">Secure Login</button>
+    </div>
+  </div>
+
+  <div id="adminDashboardBox" class="card dashboard-card hidden">
+    <div class="header" style="padding: 16px 20px 8px 20px; border-bottom: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 15px;">
+        <h2 style="margin: 0; font-size: 20px; color: #0f172a;">Admin Dashboard</h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:0; background:#3b82f6; font-size:12px; border-radius:6px;" onclick="fetchAdminData()">Refresh Data</button>
+          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:0; background:#64748b; font-size:12px; border-radius:6px;" onclick="document.getElementById('auditModal').classList.remove('hidden')">View Audit Log</button>
+          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:0; background:#10b981; font-size:12px; border-radius:6px;" onclick="exportToCSV()">Export to CSV</button>
+        </div>
+      </div>
+      
+      <div class="analytics-grid" id="analyticsGrid">
+        <div class="stat-card"><h3>Total Filtered</h3><div class="val" id="statTotal">0</div></div>
+        <div class="stat-card"><h3>Approved</h3><div class="val" id="statApproved" style="color: #059669;">0</div></div>
+        <div class="stat-card"><h3>Applied</h3><div class="val" id="statApplied" style="color: #2563eb;">0</div></div>
+        <div class="stat-card"><h3>Pending NOC</h3><div class="val" id="statPendingNoc" style="color: #d97706;">0</div></div>
+      </div>
+      
+      <div class="controls-wrapper">
+        <div class="toolbar">
+          <div class="toolbar-item" style="flex:2; min-width:160px;"><label>Search Applicant</label><input type="text" id="adminSearch" class="toolbar-input" placeholder="Name or App No..." onkeyup="applyAdminFilters()"></div>
+          <div class="toolbar-item" style="flex:2; min-width:220px;"><label>Date Range</label><div class="date-group"><input type="date" id="startDate" class="toolbar-input" onchange="applyAdminFilters()"><span style="color:#94a3b8;">-</span><input type="date" id="endDate" class="toolbar-input" onchange="applyAdminFilters()"></div></div>
+          <div class="toolbar-item"><label>Status Filter</label>
+            <select id="statusFilter" class="toolbar-input" onchange="applyAdminFilters()"><option value="All">All Statuses</option><option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">AUTONOMOUS NOC</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option><option value="Other">Other</option></select>
+          </div>
+          <div class="toolbar-item"><label>Branch Filter</label>
+            <select id="branchFilter" class="toolbar-input" onchange="applyAdminFilters()"><option value="All">All Branches</option><option value="AUTOMOBILE">Automobile</option><option value="CIVIL">Civil</option><option value="COMPUTER">Computer</option><option value="CSE (AIML)">CSE (AIML)</option><option value="CSE (DS)">CSE (DS)</option><option value="IT">IT</option><option value="MECHANICAL">Mechanical</option></select>
+          </div>
+          <div class="toolbar-item" style="flex:0; justify-content:flex-end;"><button class="action-btn" style="background:#e2e8f0; color:#475569; padding:6px 10px; min-height:32px; font-size:12.5px; box-shadow:none;" onclick="clearSearchAndDate()">Clear</button></div>
+        </div>
+
+        <div id="bulkActionBar" class="bulk-bar hidden">
+          <strong id="bulkCount" style="color:#1e40af; font-size:13px;">0 selected</strong>
+          <select id="bulkStatus"><option value="">-- Change Status --</option><option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">AUTONOMOUS NOC</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option></select>
+          <input type="date" id="bulkPayDate">
+          <label style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600;"><input type="checkbox" id="bulkNotifyChk" checked style="width:14px; height:14px;"> Notify</label>
+          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:32px; font-size:12.5px;" onclick="executeBulkUpdate()">Apply</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25px; text-align: center;"><input type="checkbox" id="selectAllChk" class="row-chk" onclick="toggleSelectAll()"></th>
+            <th style="width: 35px; text-align: center;">Sr No</th>
+            <th style="width: 90px;" onclick="sortAdminTable(2)">App No ⇕</th>
+            <th style="width: 80px; text-align: center;" onclick="sortAdminTable(7)">Branch ⇕</th>
+            <th style="width: 140px;" onclick="sortAdminTable(9)">Applicant Name ⇕</th>
+            <th style="width: 120px;">Username</th>
+            <th style="width: 110px;">Password</th>
+            <th style="width: 60px;" onclick="sortAdminTable(21)">Dist ⇕</th>
+            <th style="width: 95px; text-align: center;" onclick="sortAdminTable(17)">Status ⇕</th>
+            <th style="width: 70px;">Pay Date</th>
+            <th style="min-width: 160px;">Update Note</th>
+            <th style="width: 40px; text-align: center;">Doc</th>
+            <th style="width: 65px; text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="adminTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Status Edit Modal -->
+<div id="editModal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3 style="font-size: 18px; margin-bottom: 12px;">Status Edit</h3>
+    <input type="hidden" id="editRowIdx">
+    <div class="field" style="margin-bottom:12px;"><label>Status</label><select id="editStatus"><option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">AUTONOMOUS NOC</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option><option value="Other">Other</option></select></div>
+    <div class="field" style="margin-bottom:12px;"><label>Payment Date</label><input type="date" id="editPayDate"></div>
+    <div class="field" style="margin-bottom:12px;"><label>Migration Update Note</label><textarea id="editMigUpdate" rows="3"></textarea></div>
+    <div class="field" style="margin-bottom:12px;"><label>Upload New Document</label><input type="file" id="editMigrationFile"><div id="currentDocLink" style="font-size:12px; margin-top:4px;"></div></div>
+    <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;"><input type="checkbox" id="notifyStudentChk" checked style="width:16px; height:16px;"> Send status update email</label>
+    <div class="modal-actions"><button class="cancel-btn" onclick="document.getElementById('editModal').classList.add('hidden')">Cancel</button><button class="action-btn" onclick="saveAdminEdit()">Save</button></div>
+  </div>
+</div>
+
+<!-- Full Data Edit Modal -->
+<div id="fullEditModal" class="modal-overlay hidden">
+  <div class="modal-content" style="max-width: 850px; width: 95%;">
+    <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Full Record Edit</h3>
+    <input type="hidden" id="fullEditRowIdx">
+    <div class="grid" style="gap: 12px; margin-bottom: 15px;">
+      <div class="fe-section">Personal Details</div>
+      <div class="field" style="margin-bottom:0;"><label>First Name</label><input type="text" id="fe_first"></div>
+      <div class="field" style="margin-bottom:0;"><label>Last Name</label><input type="text" id="fe_last"></div>
+      <div class="field" style="margin-bottom:0;"><label>Father</label><input type="text" id="fe_father"></div>
+      <div class="field" style="margin-bottom:0;"><label>Mother</label><input type="text" id="fe_mother"></div>
+      <div class="field" style="margin-bottom:0;"><label>Email</label><input type="email" id="fe_email"></div>
+      <div class="field" style="margin-bottom:0;"><label>Mobile No</label><input type="text" id="fe_mobile"></div>
+      <div class="field" style="margin-bottom:0;"><label>Gender</label><input type="text" id="fe_gender"></div>
+      <div class="field" style="margin-bottom:0;"><label>Gender Other</label><input type="text" id="fe_genderOther"></div>
+
+      <div class="fe-section">Academic Details</div>
+      <div class="field" style="margin-bottom:0;"><label>App No</label><input type="text" id="fe_appNo"></div>
+      <div class="field" style="margin-bottom:0;"><label>Branch</label><input type="text" id="fe_branch"></div>
+      <div class="field" style="margin-bottom:0;"><label>Admission Year</label><input type="text" id="fe_year"></div>
+      <div class="field" style="margin-bottom:0;"><label>College Code</label><input type="text" id="fe_colCode"></div>
+      <div class="field" style="margin-bottom:0;"><label>College Name</label><input type="text" id="fe_colName"></div>
+      <div class="field" style="margin-bottom:0;"><label>Entered Name (Manual)</label><input type="text" id="fe_colEntered"></div>
+      <div class="field" style="margin-bottom:0;"><label>College Status</label><input type="text" id="fe_colStatus"></div>
+      <div class="field" style="margin-bottom:0;"><label>College Status Other</label><input type="text" id="fe_colStatusOther"></div>
+      
+      <div class="fe-section">Migration & Auth</div>
+      <div class="field" style="margin-bottom:0;"><label>Migration Status</label><input type="text" id="fe_migStatus"></div>
+      <div class="field" style="margin-bottom:0;"><label>Migration Other</label><input type="text" id="fe_migOther"></div>
+      <div class="field" style="margin-bottom:0;"><label>Username</label><input type="text" id="fe_user"></div>
+      <div class="field" style="margin-bottom:0;"><label>Password</label><input type="text" id="fe_pass"></div>
+      <div class="field" style="margin-bottom:0;"><label>District</label><input type="text" id="fe_district"></div>
+      <div class="field" style="margin-bottom:0;"><label>Payment Date</label><input type="text" id="fe_payDate"></div>
+      
+      <div class="fe-section">Notes & Files</div>
+      <div class="field" style="margin-bottom:0;"><label>Student Remark</label><textarea id="fe_remark" rows="2"></textarea></div>
+      <div class="field" style="margin-bottom:0;"><label>Admin Note</label><textarea id="fe_migUpdate" rows="2"></textarea></div>
+      <div class="field" style="margin-bottom:0;"><label>Document URL</label><input type="text" id="fe_docUrl"></div>
+    </div>
+    <div class="modal-actions"><button class="cancel-btn" onclick="document.getElementById('fullEditModal').classList.add('hidden')">Cancel</button><button class="action-btn" onclick="saveFullAdminEdit()">Update All Fields</button></div>
+  </div>
+</div>
+
+<div id="auditModal" class="modal-overlay hidden">
+  <div class="modal-content" style="max-width: 850px; width: 95%;">
+    <h3 style="margin-bottom: 15px;">System Audit Log</h3>
+    <div class="audit-container">
+      <div class="audit-row audit-header"><div>Timestamp</div><div>Action</div><div>Application No</div><div>Details</div></div>
+      <div id="auditLogBody">Loading...</div>
+    </div>
+    <div class="modal-actions" style="justify-content: flex-end;"><button class="cancel-btn" style="max-width: 120px;" onclick="document.getElementById('auditModal').classList.add('hidden')">Close</button></div>
+  </div>
+</div>
+
+<div id="loading" class="loading hidden">Loading...</div>
+
+<script src="api.js"></script>
+<script>
+let adminDataCache = []; let filteredDataCache = []; let selectedRows = new Set(); let sortAsc = true; let loginAttempts = 0;
+const loading = document.getElementById('loading');
+function setLoading(v) { loading.classList.toggle('hidden', !v); }
+function copyToClipboard(text, el) { navigator.clipboard.writeText(text).then(() => { const o = el.innerHTML; el.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓</span>'; setTimeout(() => el.innerHTML = o, 1500); }).catch(e=>console.log(e)); }
+
+async function loginAdmin() {
+  const pin = document.getElementById('adminPin').value; setLoading(true);
+  try {
+    const isValid = await callAPI('verifyAdmin', { pin });
+    if (isValid) {
+      document.getElementById('adminLoginBox').classList.add('hidden'); document.getElementById('adminDashboardBox').classList.remove('hidden');
+      fetchAdminData();
+    } else {
+      setLoading(false); loginAttempts++;
+      if (loginAttempts >= 3) document.getElementById('mainContainer').innerHTML = `<div class="card error-container" style="text-align:center; padding:40px; margin-top:10vh;"><div style="font-size:60px; font-weight:900;">LOCKED</div><div style="font-size:24px;">Security Lockout</div><div style="color:#64748b;">Too many failed attempts.</div></div>`;
+      else alert(`Invalid PIN. Attempts remaining: ${3 - loginAttempts}`);
+    }
+  } catch(e) { setLoading(false); alert(e.message); }
+}
+
+async function fetchAdminData() {
+  setLoading(true);
+  try {
+    adminDataCache = await callAPI('getAdminData', { pin: document.getElementById('adminPin').value });
+    const logs = await callAPI('getAuditLogs', { pin: document.getElementById('adminPin').value });
+    
+    let html = "";
+    for (let i = 1; i < logs.length; i++) {
+      html += `<div class="audit-row"><div>${new Date(logs[i][0]).toLocaleString()}</div><div><span style="background:#e2e8f0; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:bold;">${esc(logs[i][1])}</span></div><div><strong>${esc(logs[i][2])}</strong></div><div>${esc(logs[i][3])}</div></div>`;
+    }
+    document.getElementById('auditLogBody').innerHTML = html;
+
+    applyAdminFilters(); setLoading(false);
+  } catch(e) { setLoading(false); alert(e.message); }
+}
+
+function clearSearchAndDate() {
+  ['adminSearch','startDate','endDate'].forEach(id => document.getElementById(id).value = '');
+  ['statusFilter','branchFilter'].forEach(id => document.getElementById(id).value = 'All');
+  applyAdminFilters();
+}
+
+const copySvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+
+function applyAdminFilters() {
+  const tbody = document.getElementById('adminTableBody'); tbody.innerHTML = '';
+  const sFilt = document.getElementById('statusFilter').value; const bFilt = document.getElementById('branchFilter').value;
+  const q = (document.getElementById('adminSearch')?.value || '').toLowerCase();
+  const sDate = document.getElementById('startDate')?.value; const eDate = document.getElementById('endDate')?.value;
+  
+  filteredDataCache = []; selectedRows.clear(); document.getElementById('selectAllChk').checked = false; document.getElementById('bulkActionBar').classList.add('hidden');
+  let sr = 1; let stats = { t:0, ap:0, apld:0, noc:0 };
+  
+  for (let i = 1; i < adminDataCache.length; i++) {
+    const row = adminDataCache[i]; const ts = row[0]||''; const br = row[7]||''; const st = row[17]||'';
+    const first = row[9]||''; const last = row[8]||''; let usr = row[19]||'-'; const psw = row[20]||'-';
+    
+    if (sFilt !== 'All' && st !== sFilt) continue;
+    if (bFilt !== 'All' && br !== bFilt) continue;
+    if (q && !(first+" "+last+" "+(row[2]||'')).toLowerCase().includes(q)) continue;
+    if (sDate || eDate) { const rd = new Date(ts); if(!isNaN(rd.getTime())){ if(sDate && rd < new Date(sDate).setHours(0,0,0,0)) continue; if(eDate && rd > new Date(eDate).setHours(23,59,59,999)) continue; } }
+
+    if (usr.trim().toUpperCase() === 'SAME AS MOBILE NO') usr = row[3]||'';
+    filteredDataCache.push(row); stats.t++; if(st.toUpperCase()==='APPROVED') stats.ap++; if(st.toUpperCase()==='APPLIED') stats.apld++; if(st.toUpperCase().includes('NOC')) stats.noc++;
+    
+    const rId = i+1; 
+    const uHtml = usr!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(usr)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(usr)}', this)">${copySvg}</span></div>` : '-';
+    const pHtml = psw!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(psw)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(psw)}', this)">${copySvg}</span></div>` : '-';
+    const docHtml = row[25] ? `<a href="${esc(row[25])}" target="_blank" style="color:#2563eb; font-weight:600;">View</a>` : '<span style="color:#94a3b8; font-size:11px;">N/A</span>';
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align:center;"><input type="checkbox" class="row-chk" value="${rId}" onchange="handleRowCheck(this)"></td>
+      <td style="text-align:center;"><strong>${sr++}</strong></td>
+      <td style="font-family:monospace; font-size:12px;">${esc(row[2])}</td>
+      <td style="font-weight:700; font-size:11px; text-align:center;">${esc(br)}</td>
+      <td style="font-weight:600;">${esc(first)} ${esc(last)}</td>
+      <td style="font-size:12px;">${uHtml}</td><td style="font-size:12px;">${pHtml}</td>
+      <td style="font-size:11px; color:#475569;">${esc(row[21]||'-')}</td>
+      <td style="text-align:center;"><span class="status-badge" style="background:#e2e8f0;">${esc(st)}</span></td>
+      <td style="font-size:11px; color:#475569;">${esc(row[23]||'-')}</td>
+      <td style="font-size:11px; line-height:1.4; white-space:normal; min-width:150px;">${esc(row[24]||'-')}</td>
+      <td style="text-align:center;">${docHtml}</td>
+      <td style="text-align:center;"><div style="display:flex; flex-direction:column; gap:4px; align-items:center;"><button class="linkBtn" style="color:#0ea5e9; font-size:11px; padding:0;" onclick="openModal(${rId}, '${esc(st)}', '${esc(row[23]||'')}', '${esc(row[24]||'').replace(/'/g, "\\'")}', '${esc(row[25]||'')}')">Status Edit</button><button class="linkBtn" style="color:#d97706; font-size:11px; padding:0;" onclick="openFullEditModal(${i})">Full Data</button></div></td>
+    `; tbody.appendChild(tr);
+  }
+  document.getElementById('statTotal').innerText = stats.t; document.getElementById('statApproved').innerText = stats.ap; document.getElementById('statApplied').innerText = stats.apld; document.getElementById('statPendingNoc').innerText = stats.noc;
+}
+
+function toggleSelectAll() { const m = document.getElementById('selectAllChk').checked; document.querySelectorAll('.row-chk').forEach(c => { c.checked=m; m?selectedRows.add(c.value):selectedRows.clear(); }); updateBulkBar(); }
+function handleRowCheck(c) { c.checked ? selectedRows.add(c.value) : selectedRows.delete(c.value); document.getElementById('selectAllChk').checked = (selectedRows.size === document.querySelectorAll('.row-chk').length); updateBulkBar(); }
+function updateBulkBar() { document.getElementById('bulkCount').innerText = `${selectedRows.size} selected`; document.getElementById('bulkActionBar').classList.toggle('hidden', selectedRows.size===0); }
+
+async function executeBulkUpdate() {
+  const status = document.getElementById('bulkStatus').value; const payDate = document.getElementById('bulkPayDate').value; const notify = document.getElementById('bulkNotifyChk').checked;
+  if (!status && !payDate) return alert("Select status or date."); if (!confirm(`Update ${selectedRows.size} records? Emails: ${notify}.`)) return;
+  setLoading(true);
+  try {
+    const updates = Array.from(selectedRows).map(r => ({ rowIdx: parseInt(r), status, payDate }));
+    const msg = await callAPI('bulkUpdateAdminRecords', { pin: document.getElementById('adminPin').value, updates, sendNotification: notify });
+    alert(msg); fetchAdminData();
+  } catch(e) { setLoading(false); alert(e.message); }
+}
+
+function openModal(rId, st, p, u, doc) {
+  document.getElementById('editRowIdx').value = rId; document.getElementById('editStatus').value = st; document.getElementById('editPayDate').value = p; document.getElementById('editMigUpdate').value = u; document.getElementById('editMigrationFile').value = ""; 
+  document.getElementById('currentDocLink').innerHTML = doc ? `<a href="${doc}" target="_blank">View Current File</a>` : ''; document.getElementById('editModal').classList.remove('hidden');
+}
+
+async function saveAdminEdit() {
+  setLoading(true);
+  try {
+    const fileObj = await getFileBase64('editMigrationFile');
+    await callAPI('updateAdminRecord', { pin: document.getElementById('adminPin').value, rowIdx: parseInt(document.getElementById('editRowIdx').value), status: document.getElementById('editStatus').value, payDate: document.getElementById('editPayDate').value, migUpdate: document.getElementById('editMigUpdate').value, fileObj, sendNotification: document.getElementById('notifyStudentChk').checked });
+    document.getElementById('editModal').classList.add('hidden'); fetchAdminData();
+  } catch (e) { setLoading(false); alert(e.message); }
+}
+
+function openFullEditModal(i) {
+  const row = adminDataCache[i]; document.getElementById('fullEditRowIdx').value = i + 1;
+  ['email','appNo','mobile','year','gender','genderOther','branch','last','first','father','mother','colCode','colName','colEntered','colStatus','colStatusOther','migStatus','migOther','user','pass','district','remark','payDate','migUpdate','docUrl'].forEach((k, idx) => {
+    const arrIdx = [1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,17,18,19,20,21,22,23,24,25][idx];
+    document.getElementById(`fe_${k}`).value = row[arrIdx] || '';
+  });
+  document.getElementById('fullEditModal').classList.remove('hidden');
+}
+
+async function saveFullAdminEdit() {
+  const d = {}; ['email','appNo','mobile','year','gender','genderOther','branch','last','first','father','mother','colCode','colName','colEntered','colStatus','colStatusOther','migStatus','migOther','user','pass','district','remark','payDate','migUpdate','docUrl'].forEach(k => d[k] = document.getElementById(`fe_${k}`).value);
+  setLoading(true);
+  try {
+    await callAPI('updateFullAdminRecord', { pin: document.getElementById('adminPin').value, rowIdx: parseInt(document.getElementById('fullEditRowIdx').value), d });
+    document.getElementById('fullEditModal').classList.add('hidden'); fetchAdminData();
+  } catch (e) { setLoading(false); alert(e.message); }
+}
+
+function exportToCSV() {
+  if (!filteredDataCache.length) return alert("No data to export.");
+  let csv = "data:text/csv;charset=utf-8," + ["Timestamp","App No","Branch","Last Name","First Name","Email","Mobile","Username","Password","Status"].join(",") + "\n";
+  filteredDataCache.forEach(r => csv += [r[0],r[2],r[7],r[8],r[9],r[1],r[3],r[19],r[20],r[17]].map(v => `"${String(v||'').replace(/"/g, '""')}"`).join(",") + "\n");
+  const a = document.createElement("a"); a.href = encodeURI(csv); a.download = `Export_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function sortAdminTable(cIdx) {
+  if (adminDataCache.length <= 1) return;
+  const h = adminDataCache[0]; let r = adminDataCache.slice(1);
+  r.sort((a, b) => sortAsc ? String(a[cIdx]||'').localeCompare(String(b[cIdx]||'')) : String(b[cIdx]||'').localeCompare(String(a[cIdx]||'')));
+  sortAsc = !sortAsc; adminDataCache = [h, ...r]; applyAdminFilters();
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 // Paste your deployed Google Apps Script Web App URL here
-const API_URL = "YOUR_WEB_APP_URL"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbx3IR0cYXUXx2UNRS26efleoIZ5jjW7V0GL2CD-re_EyVLw3LaWBNzKrB7sgJEbDbMIcg/exec"; 
 
 async function callAPI(action, data = {}) {
   try {

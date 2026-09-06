@@ -6,11 +6,9 @@
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* UI Overhaul Styles */
     .page { max-width: 1600px !important; padding: 16px 24px; background: #f1f5f9; min-height: 100vh; }
     .dashboard-card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: none; }
     
-    /* Expanded Stats Grid */
     .analytics-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-bottom: 16px; }
     @media (max-width: 1300px) { .analytics-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 800px) { .analytics-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -20,11 +18,9 @@
     .stat-card h3 { margin: 0 0 6px; font-size: 10.5px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .stat-card .val { font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1; }
     
-    /* Fixed Toolbar Layout */
     .controls-wrapper { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; width: 100%; box-sizing: border-box; }
     .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); width: 100%; box-sizing: border-box; }
     
-    /* flex: 1 1 150px allows items to grow and shrink, min-width: 0 prevents input overflow */
     .toolbar-item { display: flex; flex-direction: column; gap: 6px; flex: 1 1 150px; min-width: 0; box-sizing: border-box; }
     .toolbar-item.btn-container { flex: 0 0 auto; min-width: auto; justify-content: flex-end; }
     
@@ -32,16 +28,13 @@
     .toolbar-input { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #1e293b; background: #f8fafc; transition: all 0.2s; min-height: 36px; box-sizing: border-box; }
     .toolbar-input:focus { outline: none; border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
     
-    /* Forced Horizontal Date Group */
     .date-group { display: flex; flex-direction: row; gap: 8px; align-items: center; width: 100%; box-sizing: border-box; }
     .date-group input { flex: 1 1 0; min-width: 0; }
     
-    /* Bulk Action Bar */
     .bulk-bar { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px 16px; border-radius: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .bulk-bar select, .bulk-bar input { padding: 6px 10px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 13px; min-height: 34px; background: #fff; }
     .row-chk { width: 16px; height: 16px; cursor: pointer; accent-color: #2563eb; margin: 0; }
     
-    /* Table Polish */
     .table-wrap { overflow-x: auto; max-height: 65vh; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; min-width: 1150px; } 
     th, td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
@@ -49,10 +42,8 @@
     th:hover { background: #f1f5f9; color: #0f172a; }
     tr:hover td { background: #f8fafc; }
     
-    /* Perfect Pill Badges */
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-align: center; line-height: 1.3; max-width: 130px; word-wrap: break-word; white-space: normal; letter-spacing: 0.3px; }
     
-    /* Modern Action Buttons */
     .action-btn-group { display: flex; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
     .mini-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; transition: background 0.2s; }
     .btn-edit { background: #e0f2fe; color: #0369a1; }
@@ -60,12 +51,10 @@
     .btn-full { background: #fef3c7; color: #b45309; }
     .btn-full:hover { background: #fde68a; }
     
-    /* Utilities */
     .copy-icon-wrapper { cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; }
     .copy-icon-wrapper:hover { color: #2563eb; background: #eff6ff; }
     .fe-section { grid-column: 1 / -1; margin-top: 12px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
     
-    /* Scrollbar Styling for Table */
     .table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
     .table-wrap::-webkit-scrollbar-track { background: #f1f5f9; }
     .table-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -120,7 +109,6 @@
           <div class="toolbar-item"><label>Branch Filter</label>
             <select id="branchFilter" class="toolbar-input" onchange="applyAdminFilters()"><option value="All">All Branches</option><option value="AUTOMOBILE">Automobile</option><option value="CIVIL">Civil</option><option value="COMPUTER">Computer</option><option value="CSE (AIML)">CSE (AIML)</option><option value="CSE (DS)">CSE (DS)</option><option value="IT">IT</option><option value="MECHANICAL">Mechanical</option></select>
           </div>
-          <!-- Clear Button fixed with auto flex -->
           <div class="toolbar-item btn-container"><button class="action-btn" style="background:#e2e8f0; color:#475569; padding:8px 14px; min-height:36px; font-size:13px; box-shadow:none; border-radius:8px; font-weight: 700; width: 100%;" onclick="clearSearchAndDate()">Clear</button></div>
         </div>
 
@@ -145,8 +133,8 @@
             <th style="width: 150px;" onclick="sortAdminTable(9)">Applicant Name ⇕</th>
             <th style="width: 120px;">Username</th>
             <th style="width: 120px;">Password</th>
-            <th style="width: 60px;" onclick="sortAdminTable(21)">Dist ⇕</th>
-            <th style="width: 110px; text-align: center;" onclick="sortAdminTable(17)">Status ⇕</th>
+            <th style="width: 60px;" onclick="sortAdminTable(19)">Dist ⇕</th>
+            <th style="width: 110px; text-align: center;" onclick="sortAdminTable(16)">Status ⇕</th>
             <th style="width: 80px;">Pay Date</th>
             <th style="min-width: 160px;">Update Note</th>
             <th style="width: 50px; text-align: center;">Doc</th>
@@ -196,12 +184,11 @@
       <div class="field" style="margin-bottom:0;"><label>College Code</label><input type="text" id="fe_colCode"></div>
       <div class="field" style="margin-bottom:0;"><label>College Name</label><input type="text" id="fe_colName"></div>
       <div class="field" style="margin-bottom:0;"><label>Entered Name (Manual)</label><input type="text" id="fe_colEntered"></div>
+      <!-- Reduced Fields to match correct layout -->
       <div class="field" style="margin-bottom:0;"><label>College Status</label><input type="text" id="fe_colStatus"></div>
-      <div class="field" style="margin-bottom:0;"><label>College Status Other</label><input type="text" id="fe_colStatusOther"></div>
       
       <div class="fe-section">Migration & Auth</div>
       <div class="field" style="margin-bottom:0;"><label>Migration Status</label><input type="text" id="fe_migStatus"></div>
-      <div class="field" style="margin-bottom:0;"><label>Migration Other</label><input type="text" id="fe_migOther"></div>
       <div class="field" style="margin-bottom:0;"><label>Username</label><input type="text" id="fe_user"></div>
       <div class="field" style="margin-bottom:0;"><label>Password</label><input type="text" id="fe_pass"></div>
       <div class="field" style="margin-bottom:0;"><label>District</label><input type="text" id="fe_district"></div>
@@ -296,8 +283,8 @@ function applyAdminFilters() {
   let stats = { t:0, sub:0, noc:0, apld:0, lc:0, ap:0, rej:0, oth:0 };
   
   for (let i = 1; i < adminDataCache.length; i++) {
-    const row = adminDataCache[i]; const ts = row[0]||''; const br = row[7]||''; const st = row[17]||'';
-    const first = row[9]||''; const last = row[8]||''; let usr = row[19]||'-'; const psw = row[20]||'-';
+    const row = adminDataCache[i]; const ts = row[0]||''; const br = row[7]||''; const st = row[16]||''; // Adjusted for removed cols
+    const first = row[9]||''; const last = row[8]||''; let usr = row[17]||'-'; const psw = row[18]||'-'; // Adjusted
     
     if (sFilt !== 'All' && st !== sFilt) continue;
     if (bFilt !== 'All' && br !== bFilt) continue;
@@ -321,7 +308,9 @@ function applyAdminFilters() {
     const rId = i+1; 
     const uHtml = usr!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(usr)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(usr)}', this)">${copySvg}</span></div>` : '-';
     const pHtml = psw!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(psw)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(psw)}', this)">${copySvg}</span></div>` : '-';
-    const docHtml = row[25] ? `<a href="${esc(row[25])}" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:none;">View</a>` : '<span style="color:#94a3b8; font-size:11px;">N/A</span>';
+    // Adjusted indexes for removed cols
+    const docUrl = row[23]||'';
+    const docHtml = docUrl ? `<a href="${esc(docUrl)}" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:none;">View</a>` : '<span style="color:#94a3b8; font-size:11px;">N/A</span>';
     
     const bColor = {"AUTOMOBILE":"#fecaca","CIVIL":"#fed7aa","COMPUTER":"#bfdbfe","CSE (AIML)":"#c7d2fe","CSE (DS)":"#ddd6fe","IT":"#a7f3d0","MECHANICAL":"#fef08a"}[br.toUpperCase()] || "#e2e8f0";
     
@@ -336,21 +325,20 @@ function applyAdminFilters() {
       <td style="text-align:center;"><span style="background:${bColor}; color:#0f172a; padding:3px 6px; border-radius:4px; font-weight:700; font-size:10.5px;">${esc(br)}</span></td>
       <td style="font-weight:700; color:#0f172a; font-size:13px;">${esc(first)} ${esc(last)}</td>
       <td style="font-size:13px; font-family:monospace;">${uHtml}</td><td style="font-size:13px; font-family:monospace;">${pHtml}</td>
-      <td style="font-size:12px; color:#64748b;">${esc(row[21]||'-')}</td>
+      <td style="font-size:12px; color:#64748b;">${esc(row[19]||'-')}</td>
       <td style="text-align:center;"><span class="status-badge" style="${sStyle}" title="${esc(st)}">${esc(displayStatus)}</span></td>
-      <td style="font-size:12px; color:#64748b;">${esc(row[23]||'-')}</td>
-      <td style="font-size:12px; line-height:1.4; color:#334155; white-space:normal; min-width:140px; word-wrap:break-word;">${esc(row[24]||'-')}</td>
+      <td style="font-size:12px; color:#64748b;">${esc(row[21]||'-')}</td>
+      <td style="font-size:12px; line-height:1.4; color:#334155; white-space:normal; min-width:140px; word-wrap:break-word;">${esc(row[22]||'-')}</td>
       <td style="text-align:center;">${docHtml}</td>
       <td style="text-align:center;">
         <div class="action-btn-group">
-          <button class="mini-btn btn-edit" title="Edit Status" onclick="openModal(${rId}, '${esc(st)}', '${esc(row[23]||'')}', '${esc(row[24]||'').replace(/'/g, "\\'")}', '${esc(row[25]||'')}')">Status</button>
+          <button class="mini-btn btn-edit" title="Edit Status" onclick="openModal(${rId}, '${esc(st)}', '${esc(row[21]||'')}', '${esc(row[22]||'').replace(/'/g, "\\'")}', '${esc(docUrl)}')">Status</button>
           <button class="mini-btn btn-full" title="Edit Full Data" onclick="openFullEditModal(${i})">Full</button>
         </div>
       </td>
     `; tbody.appendChild(tr);
   }
   
-  // Update all 8 stat cards
   document.getElementById('statTotal').innerText = stats.t; 
   document.getElementById('statSubmitted').innerText = stats.sub; 
   document.getElementById('statApplied').innerText = stats.apld; 
@@ -392,15 +380,17 @@ async function saveAdminEdit() {
 
 function openFullEditModal(i) {
   const row = adminDataCache[i]; document.getElementById('fullEditRowIdx').value = i + 1;
-  ['email','appNo','mobile','year','gender','genderOther','branch','last','first','father','mother','colCode','colName','colEntered','colStatus','colStatusOther','migStatus','migOther','user','pass','district','remark','payDate','migUpdate','docUrl'].forEach((k, idx) => {
-    const arrIdx = [1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,17,18,19,20,21,22,23,24,25][idx];
+  
+  // Re-indexed for removed columns
+  ['email','appNo','mobile','year','gender','genderOther','branch','last','first','father','mother','colCode','colName','colEntered','colStatus','migStatus','user','pass','district','remark','payDate','migUpdate','docUrl'].forEach((k, idx) => {
+    const arrIdx = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23][idx];
     document.getElementById(`fe_${k}`).value = row[arrIdx] || '';
   });
   document.getElementById('fullEditModal').classList.remove('hidden');
 }
 
 async function saveFullAdminEdit() {
-  const d = {}; ['email','appNo','mobile','year','gender','genderOther','branch','last','first','father','mother','colCode','colName','colEntered','colStatus','colStatusOther','migStatus','migOther','user','pass','district','remark','payDate','migUpdate','docUrl'].forEach(k => d[k] = document.getElementById(`fe_${k}`).value);
+  const d = {}; ['email','appNo','mobile','year','gender','genderOther','branch','last','first','father','mother','colCode','colName','colEntered','colStatus','migStatus','user','pass','district','remark','payDate','migUpdate','docUrl'].forEach(k => d[k] = document.getElementById(`fe_${k}`).value);
   setLoading(true);
   try {
     await callAPI('updateFullAdminRecord', { pin: document.getElementById('adminPin').value, rowIdx: parseInt(document.getElementById('fullEditRowIdx').value), d });
@@ -411,7 +401,7 @@ async function saveFullAdminEdit() {
 function exportToCSV() {
   if (!filteredDataCache.length) return alert("No data to export.");
   let csv = "data:text/csv;charset=utf-8," + ["Timestamp","App No","Branch","Last Name","First Name","Email","Mobile","Username","Password","Status"].join(",") + "\n";
-  filteredDataCache.forEach(r => csv += [r[0],r[2],r[7],r[8],r[9],r[1],r[3],r[19],r[20],r[17]].map(v => `"${String(v||'').replace(/"/g, '""')}"`).join(",") + "\n");
+  filteredDataCache.forEach(r => csv += [r[0],r[2],r[7],r[8],r[9],r[1],r[3],r[17],r[18],r[16]].map(v => `"${String(v||'').replace(/"/g, '""')}"`).join(",") + "\n");
   const a = document.createElement("a"); a.href = encodeURI(csv); a.download = `Export_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 

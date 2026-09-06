@@ -10,24 +10,31 @@
     .page { max-width: 1600px !important; padding: 16px 24px; background: #f1f5f9; min-height: 100vh; }
     .dashboard-card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: none; }
     
-    /* Stats */
-    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 16px; }
-    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); transition: transform 0.2s, box-shadow 0.2s;}
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04); }
-    .stat-card h3 { margin: 0 0 6px; font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-    .stat-card .val { font-size: 28px; font-weight: 800; color: #0f172a; line-height: 1; }
+    /* Expanded Stats Grid */
+    .analytics-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 1300px) { .analytics-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 800px) { .analytics-grid { grid-template-columns: repeat(2, 1fr); } }
     
-    /* Toolbar Layout */
-    .controls-wrapper { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); }
-    .toolbar-item { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 130px; }
+    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); transition: transform 0.2s, box-shadow 0.2s;}
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04); }
+    .stat-card h3 { margin: 0 0 6px; font-size: 10.5px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stat-card .val { font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1; }
+    
+    /* Fixed Toolbar Layout */
+    .controls-wrapper { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; width: 100%; box-sizing: border-box; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); width: 100%; box-sizing: border-box; }
+    
+    /* flex: 1 1 150px allows items to grow and shrink, min-width: 0 prevents input overflow */
+    .toolbar-item { display: flex; flex-direction: column; gap: 6px; flex: 1 1 150px; min-width: 0; box-sizing: border-box; }
+    .toolbar-item.btn-container { flex: 0 0 auto; min-width: auto; justify-content: flex-end; }
+    
     .toolbar-item label { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0; letter-spacing: 0.3px; }
-    .toolbar-input { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #1e293b; background: #f8fafc; transition: all 0.2s; min-height: 36px; }
+    .toolbar-input { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #1e293b; background: #f8fafc; transition: all 0.2s; min-height: 36px; box-sizing: border-box; }
     .toolbar-input:focus { outline: none; border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
     
     /* Forced Horizontal Date Group */
-    .date-group { display: flex; flex-direction: row; gap: 8px; align-items: center; width: 100%; }
-    .date-group input { flex: 1; min-width: 0; }
+    .date-group { display: flex; flex-direction: row; gap: 8px; align-items: center; width: 100%; box-sizing: border-box; }
+    .date-group input { flex: 1 1 0; min-width: 0; }
     
     /* Bulk Action Bar */
     .bulk-bar { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px 16px; border-radius: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -87,29 +94,34 @@
       </div>
       
       <div class="analytics-grid" id="analyticsGrid">
-        <div class="stat-card"><h3>Total Filtered</h3><div class="val" id="statTotal">0</div></div>
-        <div class="stat-card"><h3>Approved</h3><div class="val" id="statApproved" style="color: #059669;">0</div></div>
-        <div class="stat-card"><h3>Applied</h3><div class="val" id="statApplied" style="color: #2563eb;">0</div></div>
+        <div class="stat-card"><h3>Total</h3><div class="val" id="statTotal">0</div></div>
+        <div class="stat-card"><h3>Submitted</h3><div class="val" id="statSubmitted" style="color: #3b82f6;">0</div></div>
+        <div class="stat-card"><h3>Applied</h3><div class="val" id="statApplied" style="color: #059669;">0</div></div>
+        <div class="stat-card"><h3>Login Created</h3><div class="val" id="statLoginCreated" style="color: #7c3aed;">0</div></div>
+        <div class="stat-card"><h3>Approved</h3><div class="val" id="statApproved" style="color: #16a34a;">0</div></div>
         <div class="stat-card"><h3>Pending NOC</h3><div class="val" id="statPendingNoc" style="color: #d97706;">0</div></div>
+        <div class="stat-card"><h3>Rejected</h3><div class="val" id="statRejected" style="color: #dc2626;">0</div></div>
+        <div class="stat-card"><h3>Other</h3><div class="val" id="statOther" style="color: #475569;">0</div></div>
       </div>
       
       <div class="controls-wrapper">
         <div class="toolbar">
-          <div class="toolbar-item" style="flex:2; min-width:180px;"><label>Search Applicant</label><input type="text" id="adminSearch" class="toolbar-input" placeholder="Name or App No..." onkeyup="applyAdminFilters()"></div>
-          <div class="toolbar-item" style="flex:2; min-width:260px;"><label>Date Range</label>
+          <div class="toolbar-item" style="flex: 2;"><label>Search Applicant</label><input type="text" id="adminSearch" class="toolbar-input" placeholder="Name or App No..." onkeyup="applyAdminFilters()"></div>
+          <div class="toolbar-item" style="flex: 2.5;"><label>Date Range</label>
             <div class="date-group">
               <input type="date" id="startDate" class="toolbar-input" onchange="applyAdminFilters()">
               <span style="color:#94a3b8; font-weight:bold;">-</span>
               <input type="date" id="endDate" class="toolbar-input" onchange="applyAdminFilters()">
             </div>
           </div>
-          <div class="toolbar-item" style="flex:1.5;"><label>Status Filter</label>
+          <div class="toolbar-item"><label>Status Filter</label>
             <select id="statusFilter" class="toolbar-input" onchange="applyAdminFilters()"><option value="All">All Statuses</option><option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">AUTONOMOUS NOC</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option><option value="Other">Other</option></select>
           </div>
-          <div class="toolbar-item" style="flex:1.5;"><label>Branch Filter</label>
+          <div class="toolbar-item"><label>Branch Filter</label>
             <select id="branchFilter" class="toolbar-input" onchange="applyAdminFilters()"><option value="All">All Branches</option><option value="AUTOMOBILE">Automobile</option><option value="CIVIL">Civil</option><option value="COMPUTER">Computer</option><option value="CSE (AIML)">CSE (AIML)</option><option value="CSE (DS)">CSE (DS)</option><option value="IT">IT</option><option value="MECHANICAL">Mechanical</option></select>
           </div>
-          <div class="toolbar-item" style="flex:0; justify-content:flex-end;"><button class="action-btn" style="background:#e2e8f0; color:#475569; padding:8px 14px; min-height:36px; font-size:13px; box-shadow:none; border-radius:8px; font-weight: 700;" onclick="clearSearchAndDate()">Clear</button></div>
+          <!-- Clear Button fixed with auto flex -->
+          <div class="toolbar-item btn-container"><button class="action-btn" style="background:#e2e8f0; color:#475569; padding:8px 14px; min-height:36px; font-size:13px; box-shadow:none; border-radius:8px; font-weight: 700; width: 100%;" onclick="clearSearchAndDate()">Clear</button></div>
         </div>
 
         <div id="bulkActionBar" class="bulk-bar hidden">
@@ -147,6 +159,7 @@
   </div>
 </div>
 
+<!-- Status Edit Modal -->
 <div id="editModal" class="modal-overlay hidden">
   <div class="modal-content">
     <h3 style="font-size: 18px; margin-bottom: 12px; font-weight:800; color:#0f172a;">Status Edit</h3>
@@ -160,6 +173,7 @@
   </div>
 </div>
 
+<!-- Full Data Edit Modal -->
 <div id="fullEditModal" class="modal-overlay hidden">
   <div class="modal-content" style="max-width: 850px; width: 95%;">
     <h3 style="font-size: 20px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; font-weight:800; color:#0f172a;">Full Record Edit</h3>
@@ -277,7 +291,9 @@ function applyAdminFilters() {
   const sDate = document.getElementById('startDate')?.value; const eDate = document.getElementById('endDate')?.value;
   
   filteredDataCache = []; selectedRows.clear(); document.getElementById('selectAllChk').checked = false; document.getElementById('bulkActionBar').classList.add('hidden');
-  let sr = 1; let stats = { t:0, ap:0, apld:0, noc:0 };
+  
+  let sr = 1; 
+  let stats = { t:0, sub:0, noc:0, apld:0, lc:0, ap:0, rej:0, oth:0 };
   
   for (let i = 1; i < adminDataCache.length; i++) {
     const row = adminDataCache[i]; const ts = row[0]||''; const br = row[7]||''; const st = row[17]||'';
@@ -289,17 +305,26 @@ function applyAdminFilters() {
     if (sDate || eDate) { const rd = new Date(ts); if(!isNaN(rd.getTime())){ if(sDate && rd < new Date(sDate).setHours(0,0,0,0)) continue; if(eDate && rd > new Date(eDate).setHours(23,59,59,999)) continue; } }
 
     if (usr.trim().toUpperCase() === 'SAME AS MOBILE NO') usr = row[3]||'';
-    filteredDataCache.push(row); stats.t++; if(st.toUpperCase()==='APPROVED') stats.ap++; if(st.toUpperCase()==='APPLIED') stats.apld++; if(st.toUpperCase().includes('NOC')) stats.noc++;
+    
+    filteredDataCache.push(row); 
+    stats.t++; 
+    
+    const checkStatus = st.toUpperCase();
+    if(checkStatus === 'APPROVED') stats.ap++; 
+    else if(checkStatus === 'APPLIED') stats.apld++; 
+    else if(checkStatus.includes('NOC')) stats.noc++;
+    else if(checkStatus === 'SUBMITTED') stats.sub++;
+    else if(checkStatus === 'LOGIN CREATED') stats.lc++;
+    else if(checkStatus === 'REJECTED') stats.rej++;
+    else stats.oth++;
     
     const rId = i+1; 
     const uHtml = usr!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(usr)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(usr)}', this)">${copySvg}</span></div>` : '-';
     const pHtml = psw!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(psw)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(psw)}', this)">${copySvg}</span></div>` : '-';
     const docHtml = row[25] ? `<a href="${esc(row[25])}" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:none;">View</a>` : '<span style="color:#94a3b8; font-size:11px;">N/A</span>';
     
-    // Better Branch rendering
     const bColor = {"AUTOMOBILE":"#fecaca","CIVIL":"#fed7aa","COMPUTER":"#bfdbfe","CSE (AIML)":"#c7d2fe","CSE (DS)":"#ddd6fe","IT":"#a7f3d0","MECHANICAL":"#fef08a"}[br.toUpperCase()] || "#e2e8f0";
     
-    // Advanced Status Rendering
     const sStyle = statusColors[st.toUpperCase()] || 'background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;';
     const displayStatus = st === 'SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES' ? 'AUTONOMOUS NOC' : st;
 
@@ -324,7 +349,16 @@ function applyAdminFilters() {
       </td>
     `; tbody.appendChild(tr);
   }
-  document.getElementById('statTotal').innerText = stats.t; document.getElementById('statApproved').innerText = stats.ap; document.getElementById('statApplied').innerText = stats.apld; document.getElementById('statPendingNoc').innerText = stats.noc;
+  
+  // Update all 8 stat cards
+  document.getElementById('statTotal').innerText = stats.t; 
+  document.getElementById('statSubmitted').innerText = stats.sub; 
+  document.getElementById('statApplied').innerText = stats.apld; 
+  document.getElementById('statLoginCreated').innerText = stats.lc; 
+  document.getElementById('statApproved').innerText = stats.ap; 
+  document.getElementById('statPendingNoc').innerText = stats.noc;
+  document.getElementById('statRejected').innerText = stats.rej; 
+  document.getElementById('statOther').innerText = stats.oth; 
 }
 
 function toggleSelectAll() { const m = document.getElementById('selectAllChk').checked; document.querySelectorAll('.row-chk').forEach(c => { c.checked=m; m?selectedRows.add(c.value):selectedRows.clear(); }); updateBulkBar(); }

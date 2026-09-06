@@ -6,28 +6,63 @@
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .page { max-width: 1600px !important; padding: 12px 20px; }
-    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 12px; }
-    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
-    .stat-card h3 { margin: 0 0 4px; font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; }
-    .stat-card .val { font-size: 24px; font-weight: 800; color: #1e293b; }
-    .controls-wrapper { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: stretch; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 0; flex: 1 1 auto; }
-    .toolbar-item { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
-    .toolbar-item label { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0; }
-    .toolbar-input { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12.5px; min-height: 32px; }
-    .bulk-bar { background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 14px; border-radius: 8px; margin: 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 0 0 auto; }
-    .bulk-bar select, .bulk-bar input { padding: 6px 8px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 12.5px; min-height: 32px; }
-    .row-chk { width: 15px; height: 15px; cursor: pointer; accent-color: #1a73e8; margin: 0; }
-    .table-wrap { overflow-x: auto; max-height: 70vh; border-top: 1px solid #e2e8f0; }
-    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1100px; font-size: 12.5px; } 
-    th, td { padding: 6px 8px; border-bottom: 1px solid #edf0f2; vertical-align: middle; }
-    th { background: #f8fafc; position: sticky; top: 0; cursor: pointer; user-select: none; font-weight: 700; color: #4b5563; z-index: 10; border-bottom: 2px solid #e5e7eb; font-size: 11.5px;}
-    .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-    .audit-row { border-bottom: 1px solid #e2e8f0; padding: 10px 0; font-size: 13px; display: grid; grid-template-columns: 140px 110px 110px 1fr; gap: 12px;}
-    .audit-header { font-weight: 700; color: #475569; background: #f1f5f9; padding: 12px 10px; border-radius: 6px 6px 0 0; }
-    .copy-icon-wrapper { cursor: pointer; color: #94a3b8; padding: 2px;} .copy-icon-wrapper:hover { color: #1a73e8; }
-    .fe-section { grid-column: 1 / -1; margin-top: 10px; font-weight: 700; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; font-size: 14px;}
+    /* UI Overhaul Styles */
+    .page { max-width: 1600px !important; padding: 16px 24px; background: #f1f5f9; min-height: 100vh; }
+    .dashboard-card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: none; }
+    
+    /* Stats */
+    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 16px; }
+    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); transition: transform 0.2s, box-shadow 0.2s;}
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04); }
+    .stat-card h3 { margin: 0 0 6px; font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+    .stat-card .val { font-size: 28px; font-weight: 800; color: #0f172a; line-height: 1; }
+    
+    /* Toolbar Layout */
+    .controls-wrapper { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); }
+    .toolbar-item { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 130px; }
+    .toolbar-item label { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0; letter-spacing: 0.3px; }
+    .toolbar-input { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #1e293b; background: #f8fafc; transition: all 0.2s; min-height: 36px; }
+    .toolbar-input:focus { outline: none; border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    
+    /* Forced Horizontal Date Group */
+    .date-group { display: flex; flex-direction: row; gap: 8px; align-items: center; width: 100%; }
+    .date-group input { flex: 1; min-width: 0; }
+    
+    /* Bulk Action Bar */
+    .bulk-bar { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px 16px; border-radius: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .bulk-bar select, .bulk-bar input { padding: 6px 10px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 13px; min-height: 34px; background: #fff; }
+    .row-chk { width: 16px; height: 16px; cursor: pointer; accent-color: #2563eb; margin: 0; }
+    
+    /* Table Polish */
+    .table-wrap { overflow-x: auto; max-height: 65vh; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; min-width: 1150px; } 
+    th, td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+    th { background: #f8fafc; position: sticky; top: 0; cursor: pointer; user-select: none; font-weight: 700; color: #64748b; z-index: 10; border-bottom: 1px solid #e2e8f0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    th:hover { background: #f1f5f9; color: #0f172a; }
+    tr:hover td { background: #f8fafc; }
+    
+    /* Perfect Pill Badges */
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-align: center; line-height: 1.3; max-width: 130px; word-wrap: break-word; white-space: normal; letter-spacing: 0.3px; }
+    
+    /* Modern Action Buttons */
+    .action-btn-group { display: flex; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .mini-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; transition: background 0.2s; }
+    .btn-edit { background: #e0f2fe; color: #0369a1; }
+    .btn-edit:hover { background: #bae6fd; }
+    .btn-full { background: #fef3c7; color: #b45309; }
+    .btn-full:hover { background: #fde68a; }
+    
+    /* Utilities */
+    .copy-icon-wrapper { cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; }
+    .copy-icon-wrapper:hover { color: #2563eb; background: #eff6ff; }
+    .fe-section { grid-column: 1 / -1; margin-top: 12px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* Scrollbar Styling for Table */
+    .table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+    .table-wrap::-webkit-scrollbar-track { background: #f1f5f9; }
+    .table-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .table-wrap::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
 <body>
@@ -41,13 +76,13 @@
   </div>
 
   <div id="adminDashboardBox" class="card dashboard-card hidden">
-    <div class="header" style="padding: 16px 20px 8px 20px; border-bottom: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 15px;">
-        <h2 style="margin: 0; font-size: 20px; color: #0f172a;">Admin Dashboard</h2>
+    <div class="header" style="padding: 24px 24px 16px 24px; border-bottom: none; background: #fff; border-radius: 12px 12px 0 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+        <h2 style="margin: 0; font-size: 24px; color: #0f172a; font-weight: 800;">Admin Dashboard</h2>
         <div style="display: flex; gap: 8px;">
-          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:0; background:#3b82f6; font-size:12px; border-radius:6px;" onclick="fetchAdminData()">Refresh Data</button>
-          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:0; background:#64748b; font-size:12px; border-radius:6px;" onclick="document.getElementById('auditModal').classList.remove('hidden')">View Audit Log</button>
-          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:0; background:#10b981; font-size:12px; border-radius:6px;" onclick="exportToCSV()">Export to CSV</button>
+          <button class="action-btn" style="width:auto; padding:8px 16px; min-height:0; background:#3b82f6; font-size:13px; border-radius:8px;" onclick="fetchAdminData()">Refresh Data</button>
+          <button class="action-btn" style="width:auto; padding:8px 16px; min-height:0; background:#64748b; font-size:13px; border-radius:8px;" onclick="document.getElementById('auditModal').classList.remove('hidden')">View Audit Log</button>
+          <button class="action-btn" style="width:auto; padding:8px 16px; min-height:0; background:#10b981; font-size:13px; border-radius:8px;" onclick="exportToCSV()">Export to CSV</button>
         </div>
       </div>
       
@@ -60,23 +95,29 @@
       
       <div class="controls-wrapper">
         <div class="toolbar">
-          <div class="toolbar-item" style="flex:2; min-width:160px;"><label>Search Applicant</label><input type="text" id="adminSearch" class="toolbar-input" placeholder="Name or App No..." onkeyup="applyAdminFilters()"></div>
-          <div class="toolbar-item" style="flex:2; min-width:220px;"><label>Date Range</label><div class="date-group"><input type="date" id="startDate" class="toolbar-input" onchange="applyAdminFilters()"><span style="color:#94a3b8;">-</span><input type="date" id="endDate" class="toolbar-input" onchange="applyAdminFilters()"></div></div>
-          <div class="toolbar-item"><label>Status Filter</label>
+          <div class="toolbar-item" style="flex:2; min-width:180px;"><label>Search Applicant</label><input type="text" id="adminSearch" class="toolbar-input" placeholder="Name or App No..." onkeyup="applyAdminFilters()"></div>
+          <div class="toolbar-item" style="flex:2; min-width:260px;"><label>Date Range</label>
+            <div class="date-group">
+              <input type="date" id="startDate" class="toolbar-input" onchange="applyAdminFilters()">
+              <span style="color:#94a3b8; font-weight:bold;">-</span>
+              <input type="date" id="endDate" class="toolbar-input" onchange="applyAdminFilters()">
+            </div>
+          </div>
+          <div class="toolbar-item" style="flex:1.5;"><label>Status Filter</label>
             <select id="statusFilter" class="toolbar-input" onchange="applyAdminFilters()"><option value="All">All Statuses</option><option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">AUTONOMOUS NOC</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option><option value="Other">Other</option></select>
           </div>
-          <div class="toolbar-item"><label>Branch Filter</label>
+          <div class="toolbar-item" style="flex:1.5;"><label>Branch Filter</label>
             <select id="branchFilter" class="toolbar-input" onchange="applyAdminFilters()"><option value="All">All Branches</option><option value="AUTOMOBILE">Automobile</option><option value="CIVIL">Civil</option><option value="COMPUTER">Computer</option><option value="CSE (AIML)">CSE (AIML)</option><option value="CSE (DS)">CSE (DS)</option><option value="IT">IT</option><option value="MECHANICAL">Mechanical</option></select>
           </div>
-          <div class="toolbar-item" style="flex:0; justify-content:flex-end;"><button class="action-btn" style="background:#e2e8f0; color:#475569; padding:6px 10px; min-height:32px; font-size:12.5px; box-shadow:none;" onclick="clearSearchAndDate()">Clear</button></div>
+          <div class="toolbar-item" style="flex:0; justify-content:flex-end;"><button class="action-btn" style="background:#e2e8f0; color:#475569; padding:8px 14px; min-height:36px; font-size:13px; box-shadow:none; border-radius:8px; font-weight: 700;" onclick="clearSearchAndDate()">Clear</button></div>
         </div>
 
         <div id="bulkActionBar" class="bulk-bar hidden">
-          <strong id="bulkCount" style="color:#1e40af; font-size:13px;">0 selected</strong>
+          <strong id="bulkCount" style="color:#0369a1; font-size:14px; margin-right: 8px;">0 selected</strong>
           <select id="bulkStatus"><option value="">-- Change Status --</option><option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">AUTONOMOUS NOC</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option></select>
           <input type="date" id="bulkPayDate">
-          <label style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600;"><input type="checkbox" id="bulkNotifyChk" checked style="width:14px; height:14px;"> Notify</label>
-          <button class="action-btn" style="width:auto; padding:6px 12px; min-height:32px; font-size:12.5px;" onclick="executeBulkUpdate()">Apply</button>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color: #334155; margin-left: 8px;"><input type="checkbox" id="bulkNotifyChk" checked style="width:16px; height:16px;"> Email Notify</label>
+          <button class="action-btn" style="width:auto; padding:6px 16px; min-height:34px; font-size:13px; border-radius:6px; margin-left: auto;" onclick="executeBulkUpdate()">Apply to Selected</button>
         </div>
       </div>
     </div>
@@ -85,19 +126,19 @@
       <table>
         <thead>
           <tr>
-            <th style="width: 25px; text-align: center;"><input type="checkbox" id="selectAllChk" class="row-chk" onclick="toggleSelectAll()"></th>
-            <th style="width: 35px; text-align: center;">Sr No</th>
-            <th style="width: 90px;" onclick="sortAdminTable(2)">App No ⇕</th>
-            <th style="width: 80px; text-align: center;" onclick="sortAdminTable(7)">Branch ⇕</th>
-            <th style="width: 140px;" onclick="sortAdminTable(9)">Applicant Name ⇕</th>
+            <th style="width: 30px; text-align: center;"><input type="checkbox" id="selectAllChk" class="row-chk" onclick="toggleSelectAll()"></th>
+            <th style="width: 40px; text-align: center;">Sr</th>
+            <th style="width: 100px;" onclick="sortAdminTable(2)">App No ⇕</th>
+            <th style="width: 90px; text-align: center;" onclick="sortAdminTable(7)">Branch ⇕</th>
+            <th style="width: 150px;" onclick="sortAdminTable(9)">Applicant Name ⇕</th>
             <th style="width: 120px;">Username</th>
-            <th style="width: 110px;">Password</th>
+            <th style="width: 120px;">Password</th>
             <th style="width: 60px;" onclick="sortAdminTable(21)">Dist ⇕</th>
-            <th style="width: 95px; text-align: center;" onclick="sortAdminTable(17)">Status ⇕</th>
-            <th style="width: 70px;">Pay Date</th>
+            <th style="width: 110px; text-align: center;" onclick="sortAdminTable(17)">Status ⇕</th>
+            <th style="width: 80px;">Pay Date</th>
             <th style="min-width: 160px;">Update Note</th>
-            <th style="width: 40px; text-align: center;">Doc</th>
-            <th style="width: 65px; text-align: center;">Action</th>
+            <th style="width: 50px; text-align: center;">Doc</th>
+            <th style="width: 110px; text-align: center;">Actions</th>
           </tr>
         </thead>
         <tbody id="adminTableBody"></tbody>
@@ -106,24 +147,22 @@
   </div>
 </div>
 
-<!-- Status Edit Modal -->
 <div id="editModal" class="modal-overlay hidden">
   <div class="modal-content">
-    <h3 style="font-size: 18px; margin-bottom: 12px;">Status Edit</h3>
+    <h3 style="font-size: 18px; margin-bottom: 12px; font-weight:800; color:#0f172a;">Status Edit</h3>
     <input type="hidden" id="editRowIdx">
     <div class="field" style="margin-bottom:12px;"><label>Status</label><select id="editStatus"><option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">AUTONOMOUS NOC</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option><option value="Other">Other</option></select></div>
     <div class="field" style="margin-bottom:12px;"><label>Payment Date</label><input type="date" id="editPayDate"></div>
     <div class="field" style="margin-bottom:12px;"><label>Migration Update Note</label><textarea id="editMigUpdate" rows="3"></textarea></div>
     <div class="field" style="margin-bottom:12px;"><label>Upload New Document</label><input type="file" id="editMigrationFile"><div id="currentDocLink" style="font-size:12px; margin-top:4px;"></div></div>
     <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;"><input type="checkbox" id="notifyStudentChk" checked style="width:16px; height:16px;"> Send status update email</label>
-    <div class="modal-actions"><button class="cancel-btn" onclick="document.getElementById('editModal').classList.add('hidden')">Cancel</button><button class="action-btn" onclick="saveAdminEdit()">Save</button></div>
+    <div class="modal-actions"><button class="cancel-btn" onclick="document.getElementById('editModal').classList.add('hidden')">Cancel</button><button class="action-btn" onclick="saveAdminEdit()">Save Changes</button></div>
   </div>
 </div>
 
-<!-- Full Data Edit Modal -->
 <div id="fullEditModal" class="modal-overlay hidden">
   <div class="modal-content" style="max-width: 850px; width: 95%;">
-    <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Full Record Edit</h3>
+    <h3 style="font-size: 20px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; font-weight:800; color:#0f172a;">Full Record Edit</h3>
     <input type="hidden" id="fullEditRowIdx">
     <div class="grid" style="gap: 12px; margin-bottom: 15px;">
       <div class="fe-section">Personal Details</div>
@@ -165,7 +204,7 @@
 
 <div id="auditModal" class="modal-overlay hidden">
   <div class="modal-content" style="max-width: 850px; width: 95%;">
-    <h3 style="margin-bottom: 15px;">System Audit Log</h3>
+    <h3 style="margin-bottom: 15px; font-weight:800; color:#0f172a;">System Audit Log</h3>
     <div class="audit-container">
       <div class="audit-row audit-header"><div>Timestamp</div><div>Action</div><div>Application No</div><div>Details</div></div>
       <div id="auditLogBody">Loading...</div>
@@ -192,7 +231,7 @@ async function loginAdmin() {
       fetchAdminData();
     } else {
       setLoading(false); loginAttempts++;
-      if (loginAttempts >= 3) document.getElementById('mainContainer').innerHTML = `<div class="card error-container" style="text-align:center; padding:40px; margin-top:10vh;"><div style="font-size:60px; font-weight:900;">LOCKED</div><div style="font-size:24px;">Security Lockout</div><div style="color:#64748b;">Too many failed attempts.</div></div>`;
+      if (loginAttempts >= 3) document.getElementById('mainContainer').innerHTML = `<div class="card error-container" style="text-align:center; padding:40px; margin-top:10vh;"><div style="font-size:60px; font-weight:900; color:#cbd5e1;">LOCKED</div><div style="font-size:24px; color:#1e293b; font-weight:800;">Security Lockout</div><div style="color:#64748b;">Too many failed attempts.</div></div>`;
       else alert(`Invalid PIN. Attempts remaining: ${3 - loginAttempts}`);
     }
   } catch(e) { setLoading(false); alert(e.message); }
@@ -206,7 +245,7 @@ async function fetchAdminData() {
     
     let html = "";
     for (let i = 1; i < logs.length; i++) {
-      html += `<div class="audit-row"><div>${new Date(logs[i][0]).toLocaleString()}</div><div><span style="background:#e2e8f0; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:bold;">${esc(logs[i][1])}</span></div><div><strong>${esc(logs[i][2])}</strong></div><div>${esc(logs[i][3])}</div></div>`;
+      html += `<div class="audit-row"><div>${new Date(logs[i][0]).toLocaleString()}</div><div><span style="background:#e2e8f0; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:bold; color:#334155;">${esc(logs[i][1])}</span></div><div><strong>${esc(logs[i][2])}</strong></div><div style="color:#475569;">${esc(logs[i][3])}</div></div>`;
     }
     document.getElementById('auditLogBody').innerHTML = html;
 
@@ -220,7 +259,16 @@ function clearSearchAndDate() {
   applyAdminFilters();
 }
 
-const copySvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+const copySvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+
+const statusColors = {
+  'SUBMITTED': 'background-color: #dbeafe; color: #1e40af;', 
+  'SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES': 'background-color: #fef3c7; color: #b45309;', 
+  'APPLIED': 'background-color: #d1fae5; color: #047857;', 
+  'LOGIN CREATED': 'background-color: #ede9fe; color: #5b21b6;', 
+  'APPROVED': 'background-color: #bbf7d0; color: #166534;', 
+  'REJECTED': 'background-color: #fee2e2; color: #991b1b;'
+};
 
 function applyAdminFilters() {
   const tbody = document.getElementById('adminTableBody'); tbody.innerHTML = '';
@@ -246,22 +294,34 @@ function applyAdminFilters() {
     const rId = i+1; 
     const uHtml = usr!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(usr)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(usr)}', this)">${copySvg}</span></div>` : '-';
     const pHtml = psw!=='-' ? `<div style="display:flex; justify-content:space-between; align-items:center;"><span>${esc(psw)}</span> <span class="copy-icon-wrapper" onclick="copyToClipboard('${esc(psw)}', this)">${copySvg}</span></div>` : '-';
-    const docHtml = row[25] ? `<a href="${esc(row[25])}" target="_blank" style="color:#2563eb; font-weight:600;">View</a>` : '<span style="color:#94a3b8; font-size:11px;">N/A</span>';
+    const docHtml = row[25] ? `<a href="${esc(row[25])}" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:none;">View</a>` : '<span style="color:#94a3b8; font-size:11px;">N/A</span>';
     
+    // Better Branch rendering
+    const bColor = {"AUTOMOBILE":"#fecaca","CIVIL":"#fed7aa","COMPUTER":"#bfdbfe","CSE (AIML)":"#c7d2fe","CSE (DS)":"#ddd6fe","IT":"#a7f3d0","MECHANICAL":"#fef08a"}[br.toUpperCase()] || "#e2e8f0";
+    
+    // Advanced Status Rendering
+    const sStyle = statusColors[st.toUpperCase()] || 'background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;';
+    const displayStatus = st === 'SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES' ? 'AUTONOMOUS NOC' : st;
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="text-align:center;"><input type="checkbox" class="row-chk" value="${rId}" onchange="handleRowCheck(this)"></td>
       <td style="text-align:center;"><strong>${sr++}</strong></td>
-      <td style="font-family:monospace; font-size:12px;">${esc(row[2])}</td>
-      <td style="font-weight:700; font-size:11px; text-align:center;">${esc(br)}</td>
-      <td style="font-weight:600;">${esc(first)} ${esc(last)}</td>
-      <td style="font-size:12px;">${uHtml}</td><td style="font-size:12px;">${pHtml}</td>
-      <td style="font-size:11px; color:#475569;">${esc(row[21]||'-')}</td>
-      <td style="text-align:center;"><span class="status-badge" style="background:#e2e8f0;">${esc(st)}</span></td>
-      <td style="font-size:11px; color:#475569;">${esc(row[23]||'-')}</td>
-      <td style="font-size:11px; line-height:1.4; white-space:normal; min-width:150px;">${esc(row[24]||'-')}</td>
+      <td style="font-family:monospace; font-size:12.5px; color:#475569;">${esc(row[2])}</td>
+      <td style="text-align:center;"><span style="background:${bColor}; color:#0f172a; padding:3px 6px; border-radius:4px; font-weight:700; font-size:10.5px;">${esc(br)}</span></td>
+      <td style="font-weight:700; color:#0f172a; font-size:13px;">${esc(first)} ${esc(last)}</td>
+      <td style="font-size:13px; font-family:monospace;">${uHtml}</td><td style="font-size:13px; font-family:monospace;">${pHtml}</td>
+      <td style="font-size:12px; color:#64748b;">${esc(row[21]||'-')}</td>
+      <td style="text-align:center;"><span class="status-badge" style="${sStyle}" title="${esc(st)}">${esc(displayStatus)}</span></td>
+      <td style="font-size:12px; color:#64748b;">${esc(row[23]||'-')}</td>
+      <td style="font-size:12px; line-height:1.4; color:#334155; white-space:normal; min-width:140px; word-wrap:break-word;">${esc(row[24]||'-')}</td>
       <td style="text-align:center;">${docHtml}</td>
-      <td style="text-align:center;"><div style="display:flex; flex-direction:column; gap:4px; align-items:center;"><button class="linkBtn" style="color:#0ea5e9; font-size:11px; padding:0;" onclick="openModal(${rId}, '${esc(st)}', '${esc(row[23]||'')}', '${esc(row[24]||'').replace(/'/g, "\\'")}', '${esc(row[25]||'')}')">Status Edit</button><button class="linkBtn" style="color:#d97706; font-size:11px; padding:0;" onclick="openFullEditModal(${i})">Full Data</button></div></td>
+      <td style="text-align:center;">
+        <div class="action-btn-group">
+          <button class="mini-btn btn-edit" title="Edit Status" onclick="openModal(${rId}, '${esc(st)}', '${esc(row[23]||'')}', '${esc(row[24]||'').replace(/'/g, "\\'")}', '${esc(row[25]||'')}')">Status</button>
+          <button class="mini-btn btn-full" title="Edit Full Data" onclick="openFullEditModal(${i})">Full</button>
+        </div>
+      </td>
     `; tbody.appendChild(tr);
   }
   document.getElementById('statTotal').innerText = stats.t; document.getElementById('statApproved').innerText = stats.ap; document.getElementById('statApplied').innerText = stats.apld; document.getElementById('statPendingNoc').innerText = stats.noc;
@@ -284,7 +344,7 @@ async function executeBulkUpdate() {
 
 function openModal(rId, st, p, u, doc) {
   document.getElementById('editRowIdx').value = rId; document.getElementById('editStatus').value = st; document.getElementById('editPayDate').value = p; document.getElementById('editMigUpdate').value = u; document.getElementById('editMigrationFile').value = ""; 
-  document.getElementById('currentDocLink').innerHTML = doc ? `<a href="${doc}" target="_blank">View Current File</a>` : ''; document.getElementById('editModal').classList.remove('hidden');
+  document.getElementById('currentDocLink').innerHTML = doc ? `<a href="${doc}" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:none;">View Current Document</a>` : ''; document.getElementById('editModal').classList.remove('hidden');
 }
 
 async function saveAdminEdit() {

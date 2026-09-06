@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Status</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .status-result { padding:20px; background:#fff; border:1px solid #e5e7eb; border-radius:9px; margin-top:20px;}
+    .status-row { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #f1f5f9; font-size:14.5px;}
+    .status-row:last-child { border-bottom:none; }
+    .status-label { font-weight:700; color:#4b5563; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="card" style="max-width: 550px; margin: 40px auto; background: #f8fafc;">
+    <div class="header" style="background: #fff;">
+      <h1>Track Status</h1>
+      <p>Enter details to check progress. <a href="index.html" style="color:#1a73e8; font-weight:bold; float:right;">Back to Form</a></p>
+    </div>
+    
+    <div style="padding: 24px 32px;">
+      <form id="trackForm">
+        <div class="field"><label>Application No. (DSE...)</label><input type="text" id="trackAppNo" required style="background: #fff;"></div>
+        <div class="field"><label>Mobile No.</label><input type="tel" id="trackMobile" required maxlength="10" style="background: #fff;"></div>
+        <button type="submit" class="action-btn">Check Status</button>
+      </form>
+      
+      <div id="statusResult" class="status-result hidden"></div>
+      
+      <div id="studentUpdateBlock" class="hidden" style="margin-top: 24px; padding: 20px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;">
+        <h3 style="margin-top: 0; color: #0f172a;">Update Your Information</h3>
+        <p style="font-size: 13px; color: #475569; margin-bottom: 16px;">Has your status changed? Update your record and attach documents here.</p>
+        
+        <div class="field" style="margin-bottom: 16px;"><label style="font-size: 13px;">Migration Status</label>
+          <select id="updateStatus" style="min-height: 40px; padding: 8px 12px; font-size: 14px;">
+             <option value="SUBMITTED">SUBMITTED</option><option value="SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES">SUBMIT AFTER (FOR NOC) - AUTONOMOUS COLLEGES</option><option value="APPLIED">APPLIED</option><option value="Login Created">Login Created</option><option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom: 16px;"><label style="font-size: 13px;">Upload Document (Optional)</label>
+          <input type="file" id="updateDoc" accept="application/pdf, image/jpeg, image/png" style="min-height: 40px; padding: 8px 12px; font-size: 14px; background: #f8fafc; border: 1px dashed #cbd5e1;">
+        </div>
+        <button type="button" class="action-btn" style="width: 100%; padding: 10px; font-size: 14px; background: #10b981;" onclick="submitStudentUpdate()">Save Updates</button>
+      </div>
+
+      <div id="message" class="message hidden"></div>
+    </div>
+  </div>
+</div>
+<div id="loading" class="loading hidden">Loading...</div>
+
+<script src="api.js"></script>
+<script>
+const loading = document.getElementById('loading'); const message = document.getElementById('message'); const resultBox = document.getElementById('statusResult');
+let currentAuth = { appNo: '', mobile: '' };
+
+document.getElementById('trackForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  message.classList.add('hidden'); resultBox.classList.add('hidden'); document.getElementById('studentUpdateBlock').classList.add('hidden');
+  loading.classList.remove('hidden');
+  
+  const appNo = document.getElementById('trackAppNo').value.trim(); const mobile = document.getElementById('trackMobile').value.trim();
+  
+  try {
+    const res = await callAPI('getStudentStatus', { appNo, mobile });
+    loading.classList.add('hidden');
+    if (res.found) {
+      currentAuth = { appNo, mobile };
+      const docHtml = res.docUrl ? `<div class="status-row"><span class="status-label">Document:</span> <a href="${esc(res.docUrl)}" target="_blank" style="color:#1a73e8; font-weight:700;">View Uploaded File</a></div>` : '';
+      resultBox.innerHTML = `<div class="status-row"><span class="status-label">Name:</span> <span>${esc(res.name)}</span></div><div class="status-row"><span class="status-label">Branch:</span> <span>${esc(res.branch)}</span></div><div class="status-row"><span class="status-label">Current Status:</span> <strong style="color:#0ea5e9;">${esc(res.status)}</strong></div><div class="status-row"><span class="status-label">Payment Date:</span> <span>${esc(res.payDate)}</span></div>${docHtml}<div class="status-row" style="flex-direction: column; align-items: flex-start; background: #eff6ff; padding: 12px; border-radius: 6px; margin-top: 10px;"><span class="status-label" style="font-size: 13px;">Admin Update Note:</span><span style="color: #1e3a8a; font-size: 13.5px; line-height: 1.4;">${esc(res.updateNote)}</span></div>`;
+      resultBox.classList.remove('hidden');
+      
+      const statusSelect = document.getElementById('updateStatus');
+      if (!Array.from(statusSelect.options).some(opt => opt.value === res.status)) statusSelect.add(new Option(res.status, res.status));
+      statusSelect.value = res.status;
+      document.getElementById('studentUpdateBlock').classList.remove('hidden');
+    } else {
+      message.innerHTML = "No application found. Check App No and Mobile."; message.className = 'message error'; message.classList.remove('hidden');
+    }
+  } catch (err) {
+    loading.classList.add('hidden'); message.textContent = err.message; message.className = 'message error'; message.classList.remove('hidden');
+  }
+});
+
+async function submitStudentUpdate() {
+  loading.classList.remove('hidden'); message.classList.add('hidden');
+  try {
+    const fileObj = await getFileBase64('updateDoc');
+    const resMsg = await callAPI('studentUpdateRecord', { appNo: currentAuth.appNo, mobile: currentAuth.mobile, newStatus: document.getElementById('updateStatus').value, fileObj });
+    loading.classList.add('hidden'); message.textContent = resMsg; message.className = 'message success'; message.classList.remove('hidden');
+    document.querySelector('#trackForm button').click(); // refresh
+    document.getElementById('updateDoc').value = ""; 
+  } catch (err) {
+    loading.classList.add('hidden'); message.textContent = err.message; message.className = 'message error'; message.classList.remove('hidden');
+  }
+}
+</script>
+</body>
+</html>
